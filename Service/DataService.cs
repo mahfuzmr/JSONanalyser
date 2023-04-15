@@ -96,10 +96,10 @@ namespace JSONanalyser.Service
             var cheapestBeer = beerData.SelectMany(b => b.Articles).OrderBy(a => a.Price).FirstOrDefault();
             var responseData = new Beer
             {
-                //[TODO:Find the parent]
-                Id = beerData.First().Id,
-                BrandName = beerData.First().BrandName,
-                Name = beerData.First().Name,
+                //[TODO: Find the parent]
+                Id = beerData.Where(i => i.Articles.Contains(cheapestBeer)).First().Id,
+                BrandName = beerData.Where(i => i.Articles.Contains(cheapestBeer)).First().BrandName,
+                Name = beerData.Where(i => i.Articles.Contains(cheapestBeer)).First().Name,
                 Article = new Article
                 {
                     Id = cheapestBeer.Id,
@@ -115,15 +115,17 @@ namespace JSONanalyser.Service
 
         public async Task<Beer> GetTheMostExpensive(string url)
         {
-            var beerData = await GetAllBeersAsync(url);
+            List<Beer> beerData = await GetAllBeersAsync(url);            
             var mostExpensiveBeer = beerData.SelectMany(b => b.Articles).OrderByDescending(a => a.Price).FirstOrDefault();
+
+
 
             var responseData = new Beer
             {
                 //[TODO: Find the parent]
-                Id = beerData.First().Id,
-                BrandName = beerData.First().BrandName,
-                Name = beerData.First().Name,
+                Id = beerData.Where(i=>i.Articles.Contains(mostExpensiveBeer)).First().Id,
+                BrandName = beerData.Where(i => i.Articles.Contains(mostExpensiveBeer)).First().BrandName,
+                Name = beerData.Where(i => i.Articles.Contains(mostExpensiveBeer)).First().Name,
                 Article = new Article
                 {
                     Id = mostExpensiveBeer.Id,
