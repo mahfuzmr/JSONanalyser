@@ -44,6 +44,19 @@ namespace JSONanalyser.Service
         /// <param name="amount"></param>
         /// <returns>bear object </returns>
         Task<List<Beer>> GetbyExactAmount(double amount, string url);
+        /// <summary>
+        /// Which one product comes in the most bottles? Or out of all the products available, which one has the highest bottle count
+        /// </summary>
+        /// <param name="url"></param>
+        /// <returns>List of beer object</returns>
+        Task<Beer> GetMostBottleCount(string url);
+
+        /// <summary>
+        /// Which one product comes in the most bottles? Or out of all the products available, which one has the highest bottle count
+        /// </summary>
+        /// <param name="url"></param>
+        /// <returns>List of beer object</returns>
+        Task<Beer> GetMostBottleByPrice(string url);
     }
 
     public class DataService : IDataService
@@ -95,7 +108,7 @@ namespace JSONanalyser.Service
                 // Find the first Beer object in beerData that contains the current item
                 Beer matchingBeer = beerData.FirstOrDefault(i => i.Articles.Contains(item));
 
-                // If we found a matching beer, create a new Beer object and add it to the list
+                // If there is a matching beer, create a new Beer object and add it to the list
                 if (matchingBeer != null)
                 {
                     Beer beerObject = new Beer
@@ -116,7 +129,7 @@ namespace JSONanalyser.Service
                         }
                     };
 
-                    // Check if the beer is already in the list
+                    // Check if the beer object is already in the list
                     Beer matchingBeerInList = beerList.FirstOrDefault(p => p.Id == beerObject.Id);
                     if (matchingBeerInList != null)
                     {
@@ -125,7 +138,7 @@ namespace JSONanalyser.Service
                     }
                     else
                     {
-                        // If it's not, add the whole Beer object to the list
+                        // If it's not, add the whole Beer object to the list as a saparate list object
                         beerList.Add(beerObject);
                     }
                 }
@@ -134,14 +147,33 @@ namespace JSONanalyser.Service
             return beerList;
         }
 
+        public async Task<Beer> GetMostBottleCount(string url)
+        {
+           var beerData = await GetAllBeersAsync(url);
+            var mostBottlesProduct = beerData.OrderByDescending(p => p.Articles
+            .Sum(a =>  Convert.ToDecimal(a.ShortDescription.Split(' ')[0].Trim()))).FirstOrDefault();
+
+            return mostBottlesProduct;
+        }
+
+        public async Task<Beer> GetMostBottleByPrice(string url)
+        {
+            var beerData = await GetAllBeersAsync(url);
+            var mostBottlesProduct = beerData.OrderByDescending(p => p.Articles.Sum(a => a.Price * 1 / Convert.ToDecimal(a.ShortDescription.Split(' ')[0].Trim()))).FirstOrDefault();
+
+            return mostBottlesProduct;
+        }
+
+
         public async Task<Beer> GetTheMostCheapest(string url)
         {
             var beerData = await GetAllBeersAsync(url);
 
+            // Fint the article based on the Unit per price
             var cheapestBeer = beerData.SelectMany(b => b.Articles).OrderBy(a => a.PricePerUnit).FirstOrDefault();
             var responseData = new Beer
             {
-                //[TODO: Find the parent]
+                //Find the parent
                 Id = beerData.Where(i => i.Articles.Contains(cheapestBeer)).First().Id,
                 BrandName = beerData.Where(i => i.Articles.Contains(cheapestBeer)).First().BrandName,
                 Name = beerData.Where(i => i.Articles.Contains(cheapestBeer)).First().Name,
@@ -161,11 +193,12 @@ namespace JSONanalyser.Service
         public async Task<Beer> GetTheMostExpensive(string url)
         {
             List<Beer> beerData = await GetAllBeersAsync(url);
+            // Fint the article based on the Unit per price
             var mostExpensiveBeer = beerData.SelectMany(b => b.Articles).OrderByDescending(a => a.PricePerUnit).FirstOrDefault();
 
             var responseData = new Beer
             {
-                //[TODO: Find the parent]
+                //Find the parent
                 Id = beerData.Where(i => i.Articles.Contains(mostExpensiveBeer)).First().Id,
                 BrandName = beerData.Where(i => i.Articles.Contains(mostExpensiveBeer)).First().BrandName,
                 Name = beerData.Where(i => i.Articles.Contains(mostExpensiveBeer)).First().Name,
