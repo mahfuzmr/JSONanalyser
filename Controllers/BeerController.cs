@@ -45,6 +45,19 @@ namespace JSONanalyser.Controllers
 
             return Ok(new JsonResult(value: beers));
         }
+        [HttpGet("exact-amount/{amount:double}")]
+        public async Task<ActionResult> GetExactAmount(double amount, string url)
+        {
+
+            var baseUrl = _beerService.UrlDecode(url);
+            var beers = await _beerService.GetbyExactAmount(amount, url);
+            if (beers == null)
+            {
+                return NotFound(new JsonResult(new object()));
+            }
+
+            return Ok(new JsonResult(value: beers));
+        }
 
     }
 }
