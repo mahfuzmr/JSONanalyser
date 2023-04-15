@@ -6,5 +6,6 @@
         public string BrandName { get; set; }
         public string Name { get; set; }
         public List<Article> Articles { get; set; }
+        public Article Article { get; internal set; }
     }
 }
