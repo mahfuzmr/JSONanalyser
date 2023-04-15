@@ -50,13 +50,6 @@ namespace JSONanalyser.Service
         /// <param name="url"></param>
         /// <returns>List of beer object</returns>
         Task<Beer> GetMostBottleCount(string url);
-
-        /// <summary>
-        /// Which one product comes in the most bottles? Or out of all the products available, which one has the highest bottle count
-        /// </summary>
-        /// <param name="url"></param>
-        /// <returns>List of beer object</returns>
-        Task<Beer> GetMostBottleByPrice(string url);
     }
 
     public class DataService : IDataService
@@ -155,15 +148,6 @@ namespace JSONanalyser.Service
 
             return mostBottlesProduct;
         }
-
-        public async Task<Beer> GetMostBottleByPrice(string url)
-        {
-            var beerData = await GetAllBeersAsync(url);
-            var mostBottlesProduct = beerData.OrderByDescending(p => p.Articles.Sum(a => a.Price * 1 / Convert.ToDecimal(a.ShortDescription.Split(' ')[0].Trim()))).FirstOrDefault();
-
-            return mostBottlesProduct;
-        }
-
 
         public async Task<Beer> GetTheMostCheapest(string url)
         {
