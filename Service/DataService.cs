@@ -93,8 +93,8 @@ namespace JSONanalyser.Service
                 else
                 {
                     _logger.LogError("Failed to retrieve data from URL");
-                    throw new Exception_NotFound(nameof(GetAllBeersAsync), url);
-                    return null;
+                    throw new Exception_ExecutionFailure(nameof(GetAllBeersAsync), url);
+                   
                 }
             }
             catch (Exception)
@@ -111,7 +111,10 @@ namespace JSONanalyser.Service
             var beerData = await GetAllBeersAsync(url);
             var beerByPrice = beerData.SelectMany(b => b.Articles).Where(p => p.Price.ToString() == amount.ToString()).OrderBy(a => a.PricePerUnit).ToList();
             List<Beer> beerList = new List<Beer>();
-
+            if(beerByPrice.Count==0)
+            {
+                throw new Exception_NotFound(nameof(GetAllBeersAsync), amount);
+            }
             foreach (var item in beerByPrice)
             {
                 // Find the first Beer object in beerData that contains the current item
@@ -162,6 +165,11 @@ namespace JSONanalyser.Service
             var mostBottlesProduct = beerData.OrderByDescending(p => p.Articles
             .Sum(a =>  Convert.ToDecimal(a.ShortDescription.Split(' ')[0].Trim()))).FirstOrDefault();
 
+            if (mostBottlesProduct == null)
+            {
+                throw new Exception_NotFound(nameof(GetAllBeersAsync), url);
+            }
+
             return mostBottlesProduct;
         }
 
@@ -171,6 +179,11 @@ namespace JSONanalyser.Service
 
             // Fint the article based on the Unit per price
             var cheapestBeer = beerData.SelectMany(b => b.Articles).OrderBy(a => a.PricePerUnit).FirstOrDefault();
+
+            if (cheapestBeer == null)
+            {
+                throw new Exception_NotFound(nameof(GetAllBeersAsync), url);
+            }
             var responseData = new Beer
             {
                 //Find the parent
@@ -195,7 +208,10 @@ namespace JSONanalyser.Service
             List<Beer> beerData = await GetAllBeersAsync(url);
             // Fint the article based on the Unit per price
             var mostExpensiveBeer = beerData.SelectMany(b => b.Articles).OrderByDescending(a => a.PricePerUnit).FirstOrDefault();
-
+            if (mostExpensiveBeer == null)
+            {
+                throw new Exception_NotFound(nameof(GetAllBeersAsync), url);
+            }
             var responseData = new Beer
             {
                 //Find the parent
