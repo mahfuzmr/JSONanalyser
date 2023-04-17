@@ -100,7 +100,7 @@ namespace JSONanalyser.Service
             catch (Exception)
             {
 
-                throw new Exception_NotFound(nameof(GetAllBeersAsync),url);
+                throw new Exception_ExecutionFailure(nameof(GetAllBeersAsync),url);
             }
             
 
@@ -232,11 +232,22 @@ namespace JSONanalyser.Service
         }
 
         public string UrlDecode(string url)
-        {
-            var decodedUrl = HttpUtility.UrlDecode(url);
-            var baseUrl = new Uri(decodedUrl).GetLeftPart(UriPartial.Authority);
-            return decodedUrl; // need the complete url
+        {           
 
+            try
+            {
+                var decodedUrl = HttpUtility.UrlDecode(url);
+                var baseUrl = new Uri(decodedUrl).GetLeftPart(UriPartial.Authority);
+                return decodedUrl; // need the complete url
+
+            }
+            catch (UriFormatException ex)
+            {
+               
+                Console.WriteLine("The URL is not valid: " + ex.Message);
+                throw new UrlDecodeException(url, ex);
+            }
+           
         }
     }
 }

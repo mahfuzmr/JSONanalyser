@@ -28,6 +28,9 @@ namespace JSONanalyser.Controllers
         }
 
         [HttpGet("most-expensive")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> GetMostExpensive(string url)
         {
 
@@ -49,6 +52,9 @@ namespace JSONanalyser.Controllers
             return new OkObjectResult(result);
         }
         [HttpGet("most-cheapest")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> GetMostCheapest(string url)
         {
 
@@ -70,6 +76,9 @@ namespace JSONanalyser.Controllers
             return new OkObjectResult(result);
         }
         [HttpGet("exact-amount/{amount:double}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> GetExactAmount(double amount, string url)
         {
 
@@ -91,6 +100,9 @@ namespace JSONanalyser.Controllers
             return new OkObjectResult(result);
         }
         [HttpGet("most-count")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> GetMaxCountBottles(string url)
         {
 
@@ -114,19 +126,18 @@ namespace JSONanalyser.Controllers
         }
 
         [HttpGet("all-question")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> GetAnswers(string url)
         {
 
-            var baseUrl = _beerService.UrlDecode(url);
-            var objectList = new List<Beer>();
+            var baseUrl = _beerService.UrlDecode(url);            
 
             var beerProduct_1 = await _beerService.GetTheMostExpensive(baseUrl);
             var beerProduct_2 = await _beerService.GetTheMostCheapest(baseUrl);
             var beerProduct_3 = await _beerService.GetbyExactAmount(17.99D, baseUrl);
             var beerProduct_4 = await _beerService.GetMostBottleCount(baseUrl);
-
-
-
 
             var DTO = new
             {

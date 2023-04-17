@@ -31,23 +31,38 @@ builder.Services.AddCors(options =>
     });
 });
 
-
-var app = builder.Build();
-
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+try
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    Log.Information("API starting....");
+    var app = builder.Build();
+    // Configure the HTTP request pipeline.
+    if (app.Environment.IsDevelopment())
+    {
+        app.UseSwagger();
+        app.UseSwaggerUI();
+    }
+    app.UseMiddleware<ExceptionMiddleware>();
+
+    app.UseCors("AllowAll");
+
+    app.UseHttpsRedirection();
+
+    app.UseAuthorization();
+
+    app.MapControllers();
+
+    app.Run();
 }
-app.UseMiddleware<ExceptionMiddleware>();
+catch (Exception ex)
+{
+    Log.Fatal("Service: Service found error while Processing claims with following: Inner Exception {0}; exception:{1}; source: {2},stackTrace: {3} ", ex.InnerException?.Message ?? ex.Message, ex.Message, ex.Source == null ? "Empty" : ex.Source, ex.StackTrace == null ? "Empty" : ex.StackTrace);
 
-app.UseCors("AllowAll");
+}
+finally
+{
+    Log.CloseAndFlush();
+}
 
-app.UseHttpsRedirection();
 
-app.UseAuthorization();
 
-app.MapControllers();
 
-app.Run();
