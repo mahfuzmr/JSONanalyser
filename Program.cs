@@ -1,3 +1,4 @@
+using JSONanalyser.Middleware;
 using JSONanalyser.Service;
 using Serilog;
 using Serilog.Extensions.Logging;
@@ -39,7 +40,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+app.UseMiddleware<ExceptionMiddleware>();
+
 app.UseCors("AllowAll");
+
 app.UseHttpsRedirection();
 
 app.UseAuthorization();

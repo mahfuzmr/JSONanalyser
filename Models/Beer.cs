@@ -7,7 +7,7 @@
         public string Name { get; set; }
         public string descriptionText { get; set; }
         public List<Article> Articles { get; set; }
-        public Article Article { get; set; }
+        public  virtual Article Article { get; set; }
 
 
     }

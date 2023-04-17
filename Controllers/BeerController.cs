@@ -40,6 +40,7 @@ namespace JSONanalyser.Controllers
             // return Ok(new JsonResult(value: beers));
 
             var result = new JsonResult(beers)
+
             {
                 StatusCode = 200,
                 ContentType = "application/json"

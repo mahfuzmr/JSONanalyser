@@ -1,4 +1,5 @@
-﻿using JSONanalyser.Models;
+﻿using JSONanalyser.Exceptions;
+using JSONanalyser.Models;
 using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json;
 using System;
@@ -74,19 +75,34 @@ namespace JSONanalyser.Service
                 _logger.LogInformation("Retrieved beers from cache");
                 return cachedBeers;
             }
-            var request = new HttpRequestMessage(HttpMethod.Get, url);
-            var response = await _httpClient.SendAsync(request);
-            response.EnsureSuccessStatusCode();
-            if (response.IsSuccessStatusCode)
+            try
             {
-                var beers = await response.Content.ReadFromJsonAsync<List<Beer>>();
-                return beers;
+                var request = new HttpRequestMessage(HttpMethod.Get, url);
+                var response = await _httpClient.SendAsync(request);               
+                if (response.IsSuccessStatusCode)
+                {
+                    var beers = await response.Content.ReadFromJsonAsync<List<Beer>>();                
+
+                    // Store the data in the cache for 10 minutes
+                    var cacheEntryOptions = new MemoryCacheEntryOptions()
+                        .SetSlidingExpiration(TimeSpan.FromMinutes(1));
+                    _memoryCache.Set("beerData", beers, cacheEntryOptions);
+
+                    return beers;
+                }
+                else
+                {
+                    _logger.LogError("Failed to retrieve data from URL");
+                    throw new Exception_NotFound(nameof(GetAllBeersAsync), url);
+                    return null;
+                }
             }
-            else
+            catch (Exception)
             {
-                _logger.LogError("Failed to retrieve data from URL");
-                return null;
+
+                throw new Exception_NotFound(nameof(GetAllBeersAsync),url);
             }
+            
 
         }
 
