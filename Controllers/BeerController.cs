@@ -9,6 +9,8 @@ using System.Collections.Generic;
 using System.Web;
 using Newtonsoft.Json;
 using System;
+using System.Xml.Linq;
+using System.Text.Json.Serialization;
 
 namespace JSONanalyser.Controllers
 {
@@ -26,21 +28,26 @@ namespace JSONanalyser.Controllers
         }
 
         [HttpGet("most-expensive")]
-        [Produces("application/json")]
         public async Task<ActionResult> GetMostExpensive(string url)
         {
-            
-            var baseUrl =  _beerService.UrlDecode(url);
+
+            var baseUrl = _beerService.UrlDecode(url);
             var beers = await _beerService.GetTheMostExpensive(baseUrl);
             if (beers == null)
             {
                 return NotFound(new JsonResult(new object()));
             }
+            // return Ok(new JsonResult(value: beers));
 
-            return Ok(new JsonResult(value: beers));
+            var result = new JsonResult(beers)
+            {
+                StatusCode = 200,
+                ContentType = "application/json"
+            };
+
+            return new OkObjectResult(result);
         }
         [HttpGet("most-cheapest")]
-        [Produces("application/json")]
         public async Task<ActionResult> GetMostCheapest(string url)
         {
 
@@ -51,10 +58,17 @@ namespace JSONanalyser.Controllers
                 return NotFound(new JsonResult(new object()));
             }
 
-            return Ok(new JsonResult(value: beers));
+            // return Ok(new JsonResult(value: beers));
+
+            var result = new JsonResult(beers)
+            {
+                StatusCode = 200,
+                ContentType = "application/json"
+            };
+
+            return new OkObjectResult(result);
         }
         [HttpGet("exact-amount/{amount:double}")]
-        [Produces("application/json")]
         public async Task<ActionResult> GetExactAmount(double amount, string url)
         {
 
@@ -64,50 +78,72 @@ namespace JSONanalyser.Controllers
             {
                 return NotFound(new JsonResult(new object()));
             }
+           
+            // return Ok(new JsonResult(value: beers));
 
-            return Ok(new JsonResult(value: beers));
+            var result = new JsonResult(beers)
+            {
+                StatusCode = 200,
+                ContentType = "application/json"
+            };
+
+            return new OkObjectResult(result);
         }
         [HttpGet("most-count")]
-        [Produces("application/json")]
         public async Task<ActionResult> GetMaxCountBottles(string url)
         {
 
             var baseUrl = _beerService.UrlDecode(url);
-            var beers = await _beerService.GetMostBottleCount( url);
+            var beers = await _beerService.GetMostBottleCount(url);
             if (beers == null)
             {
                 return NotFound(new JsonResult(new object()));
             }
 
-            return Ok(new JsonResult(value: beers));
+          
+            // return Ok(new JsonResult(value: beers));
+
+            var result = new JsonResult(beers)
+            {
+                StatusCode = 200,
+                ContentType = "application/json"
+            };
+
+            return new OkObjectResult(result);
         }
 
         [HttpGet("all-question")]
-        [Produces("application/json")]
         public async Task<ActionResult> GetAnswers(string url)
         {
 
             var baseUrl = _beerService.UrlDecode(url);
+            var objectList = new List<Beer>();
 
             var beerProduct_1 = await _beerService.GetTheMostExpensive(baseUrl);
             var beerProduct_2 = await _beerService.GetTheMostCheapest(baseUrl);
-            var beerProduct_3 = await _beerService.GetbyExactAmount(17.99D,baseUrl);
+            var beerProduct_3 = await _beerService.GetbyExactAmount(17.99D, baseUrl);
             var beerProduct_4 = await _beerService.GetMostBottleCount(baseUrl);
 
-       
 
 
-            var combinedObject = new
+
+            var DTO = new
             {
-                Object1 = beerProduct_1,
-                Object2 = beerProduct_2,
-                Object3 = beerProduct_4,
-                List = beerProduct_3
-            };
-            string json = JsonConvert.SerializeObject(combinedObject);
+                MostExpensive = beerProduct_1,
+                MostCheapest = beerProduct_2,
+                ExactAmount = beerProduct_3,
+                MostBottleCount = beerProduct_4,
 
-            // convert the combined object to JSON and return it
-            return Ok(new JsonResult(value: json));
+            };
+            // return Ok(new JsonResult(value: jsonPayload));
+            // Return as JSON Payload with appropreate information
+            var result = new JsonResult(DTO)
+            {
+                StatusCode = 200,
+                ContentType = "application/json"               
+            };
+
+            return new OkObjectResult(result);
         }
     }
 }
